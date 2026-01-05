@@ -182,7 +182,7 @@ class LegalIntelligencePipeline:
             
             # 🧠 STEP 5: CLKG CONSTRUCTION
             print("🧠 5/6 STEP 5: Causal Knowledge Graph...")
-            clkg = self.clkg_builder.build_graph(clauses)
+            clkg, clause_embeddings = self.clkg_builder.build_graph(clauses, clause_embeddings)
             print(f"   ✓ {len(clkg.edges)} causal edges")
             
             # ⚠️ STEP 6: RISK PROPAGATION

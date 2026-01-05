@@ -51,16 +51,17 @@ class CLKGBuilder:
         
         print(f"✅ CLKGBuilder initialized (threshold: {confidence_threshold})")
     
-    def build_graph(self, clauses: List[Dict]) -> CLKGGraph:
+    def build_graph(self, clauses: List[Dict], clause_embeddings: np.ndarray = None) -> tuple:
         """
         Build CLKG from list of clauses
         
         Args:
             clauses: List of clause dictionaries:
                 {'id': str, 'text': str, 'start': int, 'end': int, ...}
+            clause_embeddings: Optional pre-computed embeddings [N, 768]
         
         Returns:
-            CLKGGraph instance with clauses and causal edges
+            Tuple of (CLKGGraph instance, clause_embeddings)
         """
         print(f"\n🔗 Building CLKG from {len(clauses)} clauses...")
         
@@ -85,10 +86,19 @@ class CLKGBuilder:
         
         print(f"  ✓ Created {len(clause_objects)} clause nodes")
         
-        # Step 2: Extract clause embeddings
-        clause_texts = [c.text for c in clause_objects]
-        clause_embeddings = self.encoder.encode_clauses(clause_texts)
-        print(f"  ✓ Computed embeddings: {clause_embeddings.shape}")
+        # Step 2: Extract clause embeddings (or use provided)
+        if clause_embeddings is None:
+            clause_texts = [c.text for c in clause_objects]
+            clause_embeddings = self.encoder.encode_clauses(clause_texts)
+            print(f"  ✓ Computed embeddings: {clause_embeddings.shape}")
+        else:
+            # Validate provided embeddings match clause count
+            if clause_embeddings.shape[0] != len(clause_objects):
+                raise ValueError(
+                    f"Embeddings shape mismatch: expected {len(clause_objects)}, "
+                    f"got {clause_embeddings.shape[0]}"
+                )
+            print(f"  ✓ Using provided embeddings: {clause_embeddings.shape}")
         
         # Step 3: Predict relations between clause pairs
         num_edges_added = 0
@@ -125,7 +135,7 @@ class CLKGBuilder:
         self._validate_graph(graph)
         
         print(f"✅ CLKG built: {graph.get_statistics()}")
-        return graph
+        return graph, clause_embeddings
     
     def _predict_relation(
         self,
@@ -324,6 +334,7 @@ if __name__ == "__main__":
         {'id': 'C3', 'text': 'Confidentiality applies throughout term unless otherwise stated.'}
     ]
     
-    graph = builder.build_graph(clauses)
+    graph, embeddings = builder.build_graph(clauses)
     print("\nProduction CLKG ready!")
     print(graph.get_statistics())
+    print(f"Embeddings shape: {embeddings.shape}")

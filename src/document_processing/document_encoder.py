@@ -85,9 +85,12 @@ class DocumentEncoder:
         if not texts:
             return np.empty((0, self.model.config.hidden_size))
         
+        # Store original length before padding
+        original_len = len(texts)
+        
         # Tokenize in batches
         all_inputs = self._tokenize(texts)
-        embeddings = self._forward(all_inputs)
+        embeddings = self._forward(all_inputs, original_len)
         
         return embeddings
     
@@ -164,7 +167,7 @@ class DocumentEncoder:
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         return inputs
     
-    def _forward(self, inputs: Dict[str, torch.Tensor]) -> np.ndarray:
+    def _forward(self, inputs: Dict[str, torch.Tensor], original_len: int = None) -> np.ndarray:
         """Optimized forward pass"""
         embeddings = []
         
@@ -190,8 +193,11 @@ class DocumentEncoder:
         # Concatenate batches
         embeddings = np.vstack(embeddings)
         
-        # Trim padding if added
-        return embeddings[:len(inputs['input_ids']) // self.batch_size * self.batch_size]
+        # Trim padding if original length was provided
+        if original_len is not None:
+            return embeddings[:original_len]
+        
+        return embeddings
     
     def _smart_chunk(
         self,
