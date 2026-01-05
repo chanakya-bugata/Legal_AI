@@ -14,7 +14,7 @@ Production features:
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 import re
 import numpy as np
 from dataclasses import dataclass

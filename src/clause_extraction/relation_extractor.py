@@ -7,7 +7,7 @@ Integrates with CLKG pipeline. Classifies relations between clause pairs.
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Optional
 import numpy as np
 import re
 from src.clkg.clkg_graph import CausalRelationType
