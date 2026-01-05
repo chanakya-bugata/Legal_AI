@@ -195,20 +195,19 @@ class RiskPropagator:
             if src_idx is not None and tgt_idx is not None:
                 edge_index.extend([src_idx, tgt_idx])
                 
-                # One-hot relation type + confidence weight
+                # One-hot relation type weighted by confidence (7 dimensions)
                 rel_idx = relation_to_idx.get(edge.relation_type, 0)
-                edge_features = [0.0] * 8  # 7 relations + confidence
-                edge_features[rel_idx] = edge.confidence
-                edge_features[7] = edge.confidence  # Confidence weight
+                edge_features = [0.0] * 7  # 7 relation types
+                edge_features[rel_idx] = edge.confidence  # Weight by confidence
                 edge_attr.extend(edge_features)
         
         if edge_index:
             edge_index = torch.tensor(edge_index, dtype=torch.long, device=self.device).view(2, -1)
-            edge_attr = torch.tensor(edge_attr, dtype=torch.float32, device=self.device).view(-1, 8)
+            edge_attr = torch.tensor(edge_attr, dtype=torch.float32, device=self.device).view(-1, 7)
         else:
             # Empty graph handling
             edge_index = torch.empty((2, 0), dtype=torch.long, device=self.device)
-            edge_attr = torch.empty((0, 8), dtype=torch.float32, device=self.device)
+            edge_attr = torch.empty((0, 7), dtype=torch.float32, device=self.device)
         
         from torch_geometric.data import Data
         data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)

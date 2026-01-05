@@ -8,7 +8,7 @@ import numpy as np
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 from rank_bm25 import BM25Okapi
-from src.clkg.clkg_graph import CLKGGraph
+from src.clkg.clkg_graph import CLKGGraph, Clause
 from src.document_processing.document_encoder import DocumentEncoder
 import re
 
@@ -117,7 +117,9 @@ class HybridRetriever:
         for clause_id, score in ranked_results:
             clause = self._get_clause_by_id(clause_id)
             if clause:
-                clause_risk = self.graph.clauses.get(clause_id, Clause("", "", 0, 0)).risk_score
+                # Get risk score from graph, default to 0.5 if clause not found
+                graph_clause = self.graph.clauses.get(clause_id)
+                clause_risk = graph_clause.risk_score if graph_clause else 0.5
                 
                 result = {
                     'id': clause_id,
