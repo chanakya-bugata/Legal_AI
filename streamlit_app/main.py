@@ -16,9 +16,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 try:
     from src.main_pipeline import LegalIntelligencePipeline
-except ImportError:
-    st.error("⚠️ Pipeline module not found. Please ensure src/main_pipeline.py exists.")
-    st.stop()
+except ImportError as e:
+    st.warning(f"⚠️ Pipeline loading issue: {str(e)}")
+    st.info("Running in demo mode with sample data")
+    LegalIntelligencePipeline = None
+
+# Load pipeline (will auto-fallback to demo mode if components missing)
+try:
+    if LegalIntelligencePipeline is None:
+        raise ImportError("Using built-in demo mode")
+    pipeline = load_pipeline(device=device)
+except:
+    st.warning("Running in demo mode - full pipeline unavailable")
+
 
 # Page config
 st.set_page_config(
