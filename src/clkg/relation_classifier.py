@@ -8,8 +8,9 @@ between legal clauses using Legal-BERT + domain heuristics.
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
-from typing import Tuple, Dict, Optional
+from typing import Tuple, Dict, Optional, List
 import numpy as np
+import re
 from src.clkg.clkg_graph import CausalRelationType
 
 class CausalRelationClassifier(nn.Module):
