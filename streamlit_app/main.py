@@ -6,7 +6,7 @@ Complete demo-ready interface for the full pipeline.
 Novel Algorithms:
 🔗 CLKG | ⚠️ GNN Risk | 🔍 Hybrid RAG
 """
-
+import plotly.express
 import streamlit as st
 import sys
 import os
